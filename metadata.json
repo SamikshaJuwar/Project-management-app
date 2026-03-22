@@ -1,0 +1,5 @@
+{
+  "name": "perftrack",
+  "description": "Performance tracking and project management tool integrated with GitHub.",
+  "requestFramePermissions": []
+}

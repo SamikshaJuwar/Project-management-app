@@ -1,0 +1,134 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  SUPERADMIN
+  MANAGER
+  EMPLOYEE
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  HALF_DAY
+  LEAVE
+}
+
+enum TimesheetStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+  REJECTED
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String?
+  email        String   @unique
+  password     String
+  role         Role     @default(EMPLOYEE)
+  githubToken  String?
+  githubLogin  String?
+  githubToken2 String?
+  githubLogin2 String?
+  avatarUrl    String?
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  managerId  String?
+  manager    User?        @relation("ManagerEmployees", fields: [managerId], references: [id])
+  employees  User[]       @relation("ManagerEmployees")
+
+  issues      Issue[]
+  attendances Attendance[]
+  timesheets  Timesheet[]
+}
+
+model Project {
+  id                  String      @id @default(cuid())
+  name                String
+  description         String?
+  repoOwner           String?
+  repoName            String?
+  githubProjectId     String?
+  githubProjectNumber Int?
+  status              String      @default("active")
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+  milestones          Milestone[]
+}
+
+model Milestone {
+  id                    String    @id @default(cuid())
+  title                 String
+  description           String?
+  dueDate               DateTime?
+  githubMilestoneId     BigInt?
+  githubMilestoneNumber Int?
+  state                 String    @default("open")
+  projectId             String
+  project               Project   @relation(fields: [projectId], references: [id])
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  issues                Issue[]
+}
+
+model Issue {
+  id                String     @id @default(cuid())
+  title             String
+  body              String?
+  githubIssueId     BigInt?
+  githubIssueNumber Int?
+  state             String     @default("open")
+  labels            String[]
+  assigneeId        String?
+  assignee          User?      @relation(fields: [assigneeId], references: [id])
+  milestoneId       String?
+  milestone         Milestone? @relation(fields: [milestoneId], references: [id])
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+}
+
+model Attendance {
+  id        String           @id @default(cuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date      DateTime         @default(now()) @db.Date
+  clockIn   DateTime
+  clockOut  DateTime?
+  status    AttendanceStatus @default(PRESENT)
+  notes     String?
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  @@unique([userId, date])
+  @@index([userId])
+  @@index([date])
+}
+
+model Timesheet {
+  id          String          @id @default(cuid())
+  userId      String
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  weekStart   DateTime        @db.Date
+  weekEnd     DateTime        @db.Date
+  totalHours  Float           @default(0)
+  status      TimesheetStatus @default(DRAFT)
+  tasks       String?
+  submittedAt DateTime?
+  approvedAt  DateTime?
+  approvedBy  String?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@unique([userId, weekStart])
+  @@index([userId])
+}

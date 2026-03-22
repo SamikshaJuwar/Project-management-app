@@ -1,0 +1,12 @@
+{
+  "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js",
+  "/api/github/repos/route": "app/api/github/repos/route.js",
+  "/api/projects/route": "app/api/projects/route.js",
+  "/(auth)/login/page": "app/(auth)/login/page.js",
+  "/dashboard/issues/page": "app/dashboard/issues/page.js",
+  "/dashboard/team/page": "app/dashboard/team/page.js",
+  "/dashboard/repos/page": "app/dashboard/repos/page.js",
+  "/dashboard/settings/page": "app/dashboard/settings/page.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/dashboard/projects/page": "app/dashboard/projects/page.js"
+}
