@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import { encrypt } from "@/lib/encryption";
 
 export async function GET(req: Request) {
     try {
@@ -62,7 +63,7 @@ export async function POST(req: Request) {
                 email,
                 role,
                 password: hashedPassword,
-                githubToken,
+                githubToken: githubToken ? encrypt(githubToken) : null,
                 githubLogin,
                 isActive: true,
             },

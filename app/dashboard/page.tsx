@@ -16,7 +16,7 @@ export default async function DashboardPage() {
 
   const [projectCount, openIssuesCount, userCount, milestoneCount, recentProjects] = await Promise.all([
     prisma.project.count(),
-    prisma.issue.count({ where: { state: "open" } }),
+    prisma.issue.count({ where: { state: { notIn: ["done", "completed", "closed", "archived"] } } }),
     prisma.user.count(),
     prisma.milestone.count(),
     prisma.project.findMany({

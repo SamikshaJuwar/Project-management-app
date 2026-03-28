@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 import { getOctokit } from "@/lib/github";
+import { decrypt } from "@/lib/encryption";
 import { serialize } from "@/lib/utils";
 
 export async function PATCH(
@@ -21,7 +22,9 @@ export async function PATCH(
         const data = await req.json();
 
         // only allow specific fields
-        const { title, body, state, labels, assigneeId, milestoneId } = data;
+        const { title, body, state, labels, assigneeId, projectId, milestoneId, startDate, endDate } = data;
+
+        const validAssigneeId = assigneeId && assigneeId !== "unassigned" ? assigneeId : null;
 
         const issue = await prisma.issue.update({
             where: { id },
@@ -30,12 +33,18 @@ export async function PATCH(
                 ...(body !== undefined && { body }),
                 ...(state !== undefined && { state }),
                 ...(labels !== undefined && { labels }),
-                ...(assigneeId !== undefined && { assigneeId: assigneeId || null }),
+                ...(assigneeId !== undefined && { assigneeId: validAssigneeId }),
+                ...(projectId !== undefined && { projectId: projectId || null }),
                 ...(milestoneId !== undefined && { milestoneId: milestoneId || null }),
+                ...(startDate !== undefined && { startDate: startDate ? new Date(startDate) : null }),
+                ...(endDate !== undefined && { endDate: endDate ? new Date(endDate) : null }),
             },
             include: {
                 assignee: {
                     select: { id: true, name: true, githubLogin: true, avatarUrl: true }
+                },
+                project: {
+                    select: { id: true, name: true }
                 },
                 milestone: {
                     include: { project: true }
@@ -52,14 +61,16 @@ export async function PATCH(
                 });
 
                 if (user?.githubToken) {
-                    const octokit = getOctokit(user.githubToken);
+                    const decryptedToken = decrypt(user.githubToken);
+                    if (!decryptedToken) throw new Error("Could not decrypt token");
+                    const octokit = getOctokit(decryptedToken);
                     await octokit.rest.issues.update({
                         owner: issue.milestone.project.repoOwner,
                         repo: issue.milestone.project.repoName,
                         issue_number: issue.githubIssueNumber,
                         title: title !== undefined ? title : issue.title,
                         body: body !== undefined ? body : issue.body || "",
-                        state: state !== undefined ? (state === "open" ? "open" : "closed") : (issue.state === "open" ? "open" : "closed"),
+                        state: state !== undefined ? (["closed", "done"].includes(state) ? "closed" : "open") : (["closed", "done"].includes(issue.state) ? "closed" : "open"),
                         labels: labels !== undefined ? labels : issue.labels,
                         milestone: milestoneId !== undefined ? (issue.milestone?.githubMilestoneNumber || undefined) : (issue.milestone?.githubMilestoneNumber || undefined),
                         assignees: assigneeId !== undefined ? (issue.assignee?.githubLogin ? [issue.assignee.githubLogin] : []) : (issue.assignee?.githubLogin ? [issue.assignee.githubLogin] : [])

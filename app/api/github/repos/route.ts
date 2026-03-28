@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { getOctokitForScope } from "@/lib/github";
 import { prisma } from "@/lib/prisma";
+import { decrypt } from "@/lib/encryption";
 
 export async function GET() {
     try {
@@ -15,12 +16,13 @@ export async function GET() {
             where: { email: session.user.email },
             select: { githubToken: true, githubToken2: true },
         });
-
         if (!user?.githubToken && !user?.githubToken2) {
             return NextResponse.json({ error: "No GitHub token found" }, { status: 400 });
         }
 
-        const octokit = getOctokitForScope("repo", user.githubToken, user.githubToken2);
+        const t1 = user.githubToken ? decrypt(user.githubToken) : null;
+        const t2 = user.githubToken2 ? decrypt(user.githubToken2) : null;
+        const octokit = getOctokitForScope("repo", t1, t2);
         const { data } = await octokit.rest.repos.listForAuthenticatedUser({
             sort: "updated",
             per_page: 50,
@@ -59,12 +61,13 @@ export async function POST(req: Request) {
             where: { email: session.user.email },
             select: { githubToken: true, githubToken2: true },
         });
-
         if (!user?.githubToken && !user?.githubToken2) {
             return NextResponse.json({ error: "No GitHub token found" }, { status: 400 });
         }
 
-        const octokit = getOctokitForScope("repo", user.githubToken, user.githubToken2);
+        const t1 = user.githubToken ? decrypt(user.githubToken) : null;
+        const t2 = user.githubToken2 ? decrypt(user.githubToken2) : null;
+        const octokit = getOctokitForScope("repo", t1, t2);
         const { data } = await octokit.rest.repos.createForAuthenticatedUser({
             name,
             description,

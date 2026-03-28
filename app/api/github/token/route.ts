@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { validateToken } from "@/lib/github";
 import { prisma } from "@/lib/prisma";
+import { encrypt } from "@/lib/encryption";
 
 export async function POST(req: Request) {
     try {
@@ -31,7 +32,7 @@ export async function POST(req: Request) {
                     { status: 400 }
                 );
             }
-            updateData.githubToken = token1;
+            updateData.githubToken = encrypt(token1);
             updateData.githubLogin = result.login;
             // Only set avatarUrl from token1 (primary identity)
             updateData.avatarUrl = result.avatarUrl ?? null;
@@ -46,7 +47,7 @@ export async function POST(req: Request) {
                     { status: 400 }
                 );
             }
-            updateData.githubToken2 = token2;
+            updateData.githubToken2 = encrypt(token2);
             updateData.githubLogin2 = result.login;
         }
 

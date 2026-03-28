@@ -61,7 +61,7 @@ export async function PATCH(
         const data = await req.json();
 
         // only allow updating specific fields
-        const { name, description, status, repoOwner, repoName } = data;
+        const { name, description, status, repoOwner, repoName, startDate, endDate } = data;
 
         const project = await prisma.project.update({
             where: { id },
@@ -71,6 +71,8 @@ export async function PATCH(
                 ...(status && { status }),
                 ...(repoOwner && { repoOwner }),
                 ...(repoName && { repoName }),
+                ...(startDate !== undefined ? { startDate: startDate ? new Date(startDate) : null } : {}),
+                ...(endDate !== undefined ? { endDate: endDate ? new Date(endDate) : null } : {}),
             }
         });
 

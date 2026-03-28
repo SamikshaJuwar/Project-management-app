@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getOctokit } from "@/lib/github";
+import { decrypt } from "@/lib/encryption";
 
 import { serialize } from "@/lib/utils";
 
@@ -38,6 +39,8 @@ export async function GET(req: Request) {
                 githubProjectId: project.githubProjectId,
                 githubProjectNumber: project.githubProjectNumber,
                 status: project.status,
+                startDate: project.startDate ? project.startDate.toISOString() : null,
+                endDate: project.endDate ? project.endDate.toISOString() : null,
                 createdAt: project.createdAt,
                 updatedAt: project.updatedAt,
                 milestoneCount: project._count.milestones,
@@ -59,7 +62,7 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const { name, description, repoOwner, repoName, githubProjectId, githubProjectNumber } = await req.json();
+        const { name, description, repoOwner, repoName, githubProjectId, githubProjectNumber, startDate, endDate } = await req.json();
 
         if (!name) {
             return NextResponse.json({ error: "Name is required" }, { status: 400 });
@@ -75,6 +78,8 @@ export async function POST(req: Request) {
                 ...(repoName ? { repoName } : {}),
                 ...(githubProjectId ? { githubProjectId } : {}),
                 ...(githubProjectNumber ? { githubProjectNumber } : {}),
+                ...(startDate ? { startDate: new Date(startDate) } : {}),
+                ...(endDate ? { endDate: new Date(endDate) } : {}),
             }
         });
 
@@ -87,7 +92,9 @@ export async function POST(req: Request) {
                 });
 
                 if (user?.githubToken) {
-                    const octokit = getOctokit(user.githubToken);
+                    const decryptedToken = decrypt(user.githubToken);
+                    if (!decryptedToken) throw new Error("Could not decrypt token");
+                    const octokit = getOctokit(decryptedToken);
 
                     // Get the owner's node ID (could be user or org)
                     let ownerId: string;

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { encrypt } from "@/lib/encryption";
 
 export async function PATCH(
     req: Request,
@@ -32,7 +33,7 @@ export async function PATCH(
                 ...(name !== undefined && { name }),
                 ...(email !== undefined && { email }),
                 ...(role !== undefined && { role }),
-                ...(githubToken !== undefined && { githubToken }),
+                ...(githubToken !== undefined && { githubToken: githubToken ? encrypt(githubToken) : null }),
                 ...(githubLogin !== undefined && { githubLogin }),
                 ...(isActive !== undefined && { isActive }),
                 ...(hashedPassword && { password: hashedPassword }),

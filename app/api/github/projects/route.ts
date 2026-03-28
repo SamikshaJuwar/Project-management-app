@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { getOctokit } from "@/lib/github";
 import { prisma } from "@/lib/prisma";
+import { decrypt } from "@/lib/encryption";
 
 export async function GET() {
     try {
@@ -20,7 +21,9 @@ export async function GET() {
             return NextResponse.json({ error: "No GitHub token found" }, { status: 400 });
         }
 
-        const octokit = getOctokit(user.githubToken);
+        const decryptedToken = decrypt(user.githubToken);
+        if (!decryptedToken) throw new Error("Could not decrypt token");
+        const octokit = getOctokit(decryptedToken);
 
         // Get the authenticated user's login if not stored
         let login = user.githubLogin;

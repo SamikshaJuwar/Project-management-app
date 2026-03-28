@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 import { getOctokit } from "@/lib/github";
+import { decrypt } from "@/lib/encryption";
 import { serialize } from "@/lib/utils";
 
 export async function PATCH(
@@ -53,7 +54,9 @@ export async function PATCH(
                 });
 
                 if (user?.githubToken) {
-                    const octokit = getOctokit(user.githubToken);
+                    const decryptedToken = decrypt(user.githubToken);
+                    if (!decryptedToken) throw new Error("Could not decrypt token");
+                    const octokit = getOctokit(decryptedToken);
                     await octokit.rest.issues.updateMilestone({
                         owner: milestone.project.repoOwner,
                         repo: milestone.project.repoName,

@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getOctokit } from "@/lib/github";
+import { decrypt } from "@/lib/encryption";
 
 import { serialize } from "@/lib/utils";
 
@@ -35,6 +36,9 @@ export async function GET(req: Request) {
                 assignee: {
                     select: { id: true, name: true, githubLogin: true, avatarUrl: true }
                 },
+                project: {
+                    select: { id: true, name: true }
+                },
                 milestone: {
                     select: { id: true, title: true, projectId: true, githubMilestoneNumber: true, project: true }
                 }
@@ -56,11 +60,13 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const { milestoneId, title, body, labels, assigneeId } = await req.json();
+        const { projectId, milestoneId, title, body, labels, assigneeId, startDate, endDate, state } = await req.json();
 
         if (!title) {
             return NextResponse.json({ error: "Title is required" }, { status: 400 });
         }
+
+        const validAssigneeId = assigneeId && assigneeId !== "unassigned" ? assigneeId : null;
 
         // 1. Create in DB
         const issue = await prisma.issue.create({
@@ -68,12 +74,16 @@ export async function POST(req: Request) {
                 title,
                 body: body || "",
                 labels: Array.isArray(labels) ? labels : [],
-                state: "open",
+                state: state || "open",
+                projectId: projectId || null,
                 milestoneId: milestoneId || null,
-                assigneeId: assigneeId || null,
+                assigneeId: validAssigneeId,
+                ...(startDate ? { startDate: new Date(startDate) } : {}),
+                ...(endDate ? { endDate: new Date(endDate) } : {}),
             },
             include: {
                 assignee: true,
+                project: true,
                 milestone: {
                     include: { project: true }
                 }
@@ -89,7 +99,9 @@ export async function POST(req: Request) {
                 });
 
                 if (user?.githubToken) {
-                    const octokit = getOctokit(user.githubToken);
+                    const decryptedToken = decrypt(user.githubToken);
+                    if (!decryptedToken) throw new Error("Could not decrypt token");
+                    const octokit = getOctokit(decryptedToken);
 
                     const assignees = issue.assignee?.githubLogin ? [issue.assignee.githubLogin] : [];
 
@@ -112,6 +124,7 @@ export async function POST(req: Request) {
                         },
                         include: {
                             assignee: true,
+                            project: true,
                             milestone: {
                                 include: { project: true }
                             }
