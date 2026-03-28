@@ -56,6 +56,8 @@ type Issue = {
     githubIssueNumber: number | null;
     assigneeId: string | null;
     assignee: User | null;
+    projectId: string | null;
+    project: Project | null;
     milestoneId: string | null;
     milestone: {
         id: string;
@@ -846,10 +848,10 @@ export default function IssuesPage() {
                 <div className="flex flex-wrap items-center gap-2">
                     {hiddenColumns.length > 0 && (
                         <Popover>
-                            <PopoverTrigger asChild>
-                                <Button variant="outline" size="sm" className="h-9 border-dashed text-slate-500 hidden sm:flex">
-                                    <EyeOff className="mr-2 h-4 w-4" /> {hiddenColumns.length} Hidden
-                                </Button>
+                            <PopoverTrigger
+                                className="inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium transition-colors focus-visible:outline-none h-9 px-3 rounded-md text-sm border border-dashed text-slate-500 bg-white hover:bg-slate-50 hidden sm:flex"
+                            >
+                                <EyeOff className="mr-2 h-4 w-4" /> {hiddenColumns.length} Hidden
                             </PopoverTrigger>
                             <PopoverContent className="w-56 p-2" align="end">
                                 <p className="text-xs font-semibold text-slate-500 uppercase px-2 mb-2">Hidden Columns</p>
@@ -914,18 +916,21 @@ export default function IssuesPage() {
                 <div className="flex flex-col gap-1.5 z-10">
                     <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider ml-0.5 block">Date Filter</label>
                     <Popover>
-                        <PopoverTrigger asChild>
-                            <Button variant="outline" className={cn("h-9 w-[240px] justify-between bg-white shadow-sm border-slate-200", (filterStart || filterEnd) && "border-indigo-300 bg-indigo-50/30 text-indigo-700 font-medium")}>
-                                <div className="flex items-center gap-2 truncate">
-                                    <Filter className="h-4 w-4 text-slate-400 shrink-0" />
-                                    <span className="truncate text-xs">
-                                        {filterStart && filterEnd ? `${new Date(filterStart).toLocaleDateString("en-US", { month: "short", day: "numeric" })} - ${new Date(filterEnd).toLocaleDateString("en-US", { month: "short", day: "numeric" })}` : filterStart ? `From ${new Date(filterStart).toLocaleDateString("en-US", { month: "short", day: "numeric" })}` : filterEnd ? `Until ${new Date(filterEnd).toLocaleDateString("en-US", { month: "short", day: "numeric" })}` : "Filter by date"}
-                                    </span>
-                                </div>
-                                {(filterStart || filterEnd) && (
-                                    <Badge variant="secondary" className="px-1 h-5 rounded-sm bg-indigo-100/50 hover:bg-indigo-100/80 text-indigo-600 shrink-0 ml-1">Active</Badge>
-                                )}
-                            </Button>
+                        <PopoverTrigger
+                            className={cn(
+                                "inline-flex items-center justify-between gap-2 whitespace-nowrap font-medium transition-colors focus-visible:outline-none h-9 w-[240px] px-3 rounded-md text-sm border bg-white shadow-sm border-slate-200 hover:bg-slate-50",
+                                (filterStart || filterEnd) && "border-indigo-300 bg-indigo-50/30 text-indigo-700 font-medium"
+                            )}
+                        >
+                            <div className="flex items-center gap-2 truncate">
+                                <Filter className="h-4 w-4 text-slate-400 shrink-0" />
+                                <span className="truncate text-xs">
+                                    {filterStart && filterEnd ? `${new Date(filterStart).toLocaleDateString("en-US", { month: "short", day: "numeric" })} - ${new Date(filterEnd).toLocaleDateString("en-US", { month: "short", day: "numeric" })}` : filterStart ? `From ${new Date(filterStart).toLocaleDateString("en-US", { month: "short", day: "numeric" })}` : filterEnd ? `Until ${new Date(filterEnd).toLocaleDateString("en-US", { month: "short", day: "numeric" })}` : "Filter by date"}
+                                </span>
+                            </div>
+                            {(filterStart || filterEnd) && (
+                                <Badge variant="secondary" className="px-1 h-5 rounded-sm bg-indigo-100/50 hover:bg-indigo-100/80 text-indigo-600 shrink-0 ml-1">Active</Badge>
+                            )}
                         </PopoverTrigger>
                         <PopoverContent className="w-72 p-4" align="start">
                             <div className="space-y-4">

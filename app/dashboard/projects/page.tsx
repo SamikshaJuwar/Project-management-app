@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -223,6 +224,7 @@ function ProjectCard({
     onDelete,
     onStatusChange,
     allColumns,
+    onDragEnd,
 }: {
     project: Project;
     onEdit: (p: Project) => void;
@@ -254,7 +256,8 @@ function ProjectCard({
                 e.stopPropagation();
                 if (onDragEnd) onDragEnd();
             }}
-            className="relative cursor-grab active:cursor-grabbing"
+            className="relative cursor-pointer"
+            onClick={() => window.location.href = `/dashboard/projects/${project.id}`}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
         >

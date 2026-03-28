@@ -36,6 +36,11 @@
       "static/chunks/main-app.js",
       "static/chunks/app/dashboard/page.js"
     ],
+    "/(auth)/login/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(auth)/login/page.js"
+    ],
     "/api/auth/[...nextauth]/route": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
@@ -51,35 +56,40 @@
       "static/chunks/main-app.js",
       "static/chunks/app/api/projects/route.js"
     ],
-    "/dashboard/milestones/page": [
+    "/dashboard/projects/[id]/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/dashboard/milestones/page.js"
+      "static/chunks/app/dashboard/projects/[id]/page.js"
     ],
-    "/api/milestones/route": [
+    "/api/subprojects/route": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/api/milestones/route.js"
-    ],
-    "/dashboard/issues/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/dashboard/issues/page.js"
+      "static/chunks/app/api/subprojects/route.js"
     ],
     "/api/team/route": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/api/team/route.js"
     ],
-    "/api/issues/route": [
+    "/api/projects/[id]/route": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/api/issues/route.js"
+      "static/chunks/app/api/projects/[id]/route.js"
     ],
-    "/api/issues/[id]/route": [
+    "/api/subprojects/[id]/route": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/api/issues/[id]/route.js"
+      "static/chunks/app/api/subprojects/[id]/route.js"
+    ],
+    "/dashboard/projects/[id]/subprojects/[subprojectId]/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/dashboard/projects/[id]/subprojects/[subprojectId]/page.js"
+    ],
+    "/api/tasks/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/tasks/route.js"
     ]
   }
 }
