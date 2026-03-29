@@ -23,6 +23,7 @@ export async function GET(req: Request) {
                 assignedUsers: {
                     select: { id: true, name: true, avatarUrl: true }
                 },
+                column: true,
                 _count: {
                     select: { tasks: true }
                 }
@@ -44,7 +45,7 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const { projectId, name, description, startDate, endDate, status, assignedUserIds } = await req.json();
+        const { projectId, name, description, startDate, endDate, status, assignedUserIds, columnId } = await req.json();
 
         if (!projectId || !name) {
             return NextResponse.json({ error: "Project and name are required" }, { status: 400 });
@@ -76,6 +77,7 @@ export async function POST(req: Request) {
                 endDate: endDate ? new Date(endDate) : null,
                 status: status || "Planned",
                 projectId,
+                columnId,
                 assignedUsers: assignedUserIds ? {
                     connect: assignedUserIds.map((id: string) => ({ id }))
                 } : undefined

@@ -380,6 +380,15 @@ type RouteHandlerConfig<Route extends AppRouteHandlerRoutes = AppRouteHandlerRou
   type __Unused = __Check
 }
 
+// Validate ../../app/api/projects/[id]/columns/route.ts
+{
+  type __IsExpected<Specific extends RouteHandlerConfig<"/api/projects/[id]/columns">> = Specific
+  const handler = {} as typeof import("../../app/api/projects/[id]/columns/route.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
 // Validate ../../app/api/projects/[id]/route.ts
 {
   type __IsExpected<Specific extends RouteHandlerConfig<"/api/projects/[id]">> = Specific
@@ -402,6 +411,15 @@ type RouteHandlerConfig<Route extends AppRouteHandlerRoutes = AppRouteHandlerRou
 {
   type __IsExpected<Specific extends RouteHandlerConfig<"/api/subprojects/[id]">> = Specific
   const handler = {} as typeof import("../../app/api/subprojects/[id]/route.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
+// Validate ../../app/api/subprojects/columns/[id]/route.ts
+{
+  type __IsExpected<Specific extends RouteHandlerConfig<"/api/subprojects/columns/[id]">> = Specific
+  const handler = {} as typeof import("../../app/api/subprojects/columns/[id]/route.js")
   type __Check = __IsExpected<typeof handler>
   // @ts-ignore
   type __Unused = __Check

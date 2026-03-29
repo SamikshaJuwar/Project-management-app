@@ -22,7 +22,8 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
                 },
                 tasks: {
                     orderBy: { createdAt: "desc" }
-                }
+                },
+                column: true
             }
         });
 
@@ -75,6 +76,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
                 startDate: data.startDate ? new Date(data.startDate) : undefined,
                 endDate: data.endDate ? new Date(data.endDate) : undefined,
                 status: data.status,
+                columnId: data.columnId,
                 assignedUsers: data.assignedUserIds ? {
                     set: data.assignedUserIds.map((id: string) => ({ id }))
                 } : undefined

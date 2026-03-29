@@ -70,6 +70,22 @@ model Project {
   milestones          Milestone[]
   issues              Issue[]
   subprojects         Subproject[]
+  subprojectColumns   SubprojectColumn[]
+}
+
+model SubprojectColumn {
+  id          String       @id @default(cuid())
+  name        String
+  description String?
+  color       String       @default("bg-slate-50 border-slate-200")
+  accent      String       @default("bg-slate-400")
+  order       Int          @default(0)
+  isVisible   Boolean      @default(true)
+  projectId   String
+  project     Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  subprojects Subproject[] @relation("ColumnSubprojects")
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
 }
 
 model Subproject {
@@ -81,6 +97,8 @@ model Subproject {
   status        String    @default("Planned") // Planned, In Progress, Completed
   projectId     String
   project       Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  columnId      String?
+  column        SubprojectColumn? @relation("ColumnSubprojects", fields: [columnId], references: [id])
   tasks         Task[]
   assignedUsers User[]    @relation("SubprojectUsers")
   createdAt     DateTime  @default(now())

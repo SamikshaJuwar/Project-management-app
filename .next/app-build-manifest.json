@@ -36,11 +36,6 @@
       "static/chunks/main-app.js",
       "static/chunks/app/dashboard/page.js"
     ],
-    "/(auth)/login/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(auth)/login/page.js"
-    ],
     "/api/auth/[...nextauth]/route": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
@@ -61,25 +56,30 @@
       "static/chunks/main-app.js",
       "static/chunks/app/dashboard/projects/[id]/page.js"
     ],
-    "/api/subprojects/route": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/api/subprojects/route.js"
-    ],
     "/api/team/route": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/api/team/route.js"
+    ],
+    "/api/subprojects/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/subprojects/route.js"
     ],
     "/api/projects/[id]/route": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/api/projects/[id]/route.js"
     ],
-    "/api/subprojects/[id]/route": [
+    "/api/projects/[id]/columns/route": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/api/subprojects/[id]/route.js"
+      "static/chunks/app/api/projects/[id]/columns/route.js"
+    ],
+    "/api/subprojects/columns/[id]/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/subprojects/columns/[id]/route.js"
     ],
     "/dashboard/projects/[id]/subprojects/[subprojectId]/page": [
       "static/chunks/webpack.js",
@@ -90,6 +90,11 @@
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/api/tasks/route.js"
+    ],
+    "/api/subprojects/[id]/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/subprojects/[id]/route.js"
     ]
   }
 }
