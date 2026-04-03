@@ -48,9 +48,9 @@ export async function GET(req: Request) {
         });
 
         return NextResponse.json(serialize(formatted));
-    } catch (error) {
+    } catch (error: any) {
         console.error("Fetch milestones error:", error);
-        return NextResponse.json({ error: "Failed to fetch milestones" }, { status: 500 });
+        return NextResponse.json({ error: error.message || "Failed to fetch milestones" }, { status: 500 });
     }
 }
 
@@ -61,24 +61,35 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const { projectId, title, description, dueDate } = await req.json();
+        const { projectId, subprojectId, title, description, dueDate } = await req.json();
 
         if (!projectId || !title) {
             return NextResponse.json({ error: "Project and title are required" }, { status: 400 });
         }
 
-        // 1. Create in DB
+        // 1. Create in DB (with optional Task)
         const milestone = await prisma.milestone.create({
             data: {
                 title,
                 description,
                 dueDate: dueDate ? new Date(dueDate) : null,
-                projectId,
+                project: { connect: { id: projectId } },
+                subproject: subprojectId && subprojectId !== "none" ? { connect: { id: subprojectId } } : undefined,
+                task: (subprojectId && subprojectId !== "none") ? {
+                    create: {
+                        title,
+                        description: description || "",
+                        status: "To Do",
+                        subprojectId,
+                        dueDate: dueDate ? new Date(dueDate) : null,
+                    }
+                } : undefined
             },
             include: {
                 project: {
                     select: { name: true, repoOwner: true, repoName: true }
-                }
+                },
+                task: true
             }
         });
 

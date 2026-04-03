@@ -12,7 +12,7 @@ import {
     Users, MoreHorizontal, Edit, Trash, 
     Loader2, ArrowLeft, MoreVertical, GripVertical,
     CheckCircle2, Clock, ListTodo, Tag, User as UserIcon,
-    AlertCircle, MessageSquare, Heart, Repeat
+    AlertCircle, MessageSquare, Heart, Repeat, Flag
 } from "lucide-react";
 import {
     Select,
@@ -53,6 +53,10 @@ type Task = {
     commentsCount?: number;
     likesCount?: number;
     repostsCount?: number;
+    milestone?: {
+        id: string;
+        title: string;
+    } | null;
 };
 
 /* ─── Constants ──────────────────────────────────────────────────── */
@@ -186,6 +190,11 @@ function TaskCard({ task, onEdit, onDelete, onStatusChange }: any) {
                         {l}
                     </Badge>
                 ))}
+                {task.milestone && (
+                    <Badge variant="outline" className="text-[8px] font-black uppercase tracking-widest border-amber-100 bg-amber-50/50 text-amber-600 px-2 h-5 rounded-lg flex items-center gap-1 shadow-sm">
+                        <Flag className="h-2 w-2 fill-amber-500" /> {task.milestone.title}
+                    </Badge>
+                )}
             </div>
 
             <div className="flex items-center justify-between pt-4 border-t border-slate-50 dark:border-slate-800">

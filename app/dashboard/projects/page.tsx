@@ -1029,13 +1029,14 @@ export default function ProjectsPage() {
                         <div className="space-y-2">
                             <label className="text-sm font-medium text-gray-700 dark:text-gray-300">GitHub Repository (Optional)</label>
                             <Popover open={repoComboboxOpen} onOpenChange={setRepoComboboxOpen}>
-                                <PopoverTrigger>
+                                <PopoverTrigger asChild>
                                     <Button
                                         variant="outline"
                                         role="combobox"
                                         aria-expanded={repoComboboxOpen}
                                         className="w-full justify-between font-normal"
                                         disabled={saving}
+                                        type="button"
                                     >
                                         {formData.repoName
                                             ? `${formData.repoOwner}/${formData.repoName}`
@@ -1049,20 +1050,32 @@ export default function ProjectsPage() {
                                         <CommandList>
                                             <CommandEmpty>No repository found.</CommandEmpty>
                                             <CommandGroup>
+                                                {/* Clear selection option */}
+                                                {(formData.repoName) && (
+                                                    <CommandItem
+                                                        key="__clear__"
+                                                        value="__clear__"
+                                                        onSelect={() => {
+                                                            setFormData({ ...formData, repoOwner: "", repoName: "" });
+                                                            setRepoComboboxOpen(false);
+                                                        }}
+                                                        className="text-slate-400 italic"
+                                                    >
+                                                        <X className="mr-2 h-4 w-4" />
+                                                        None (clear selection)
+                                                    </CommandItem>
+                                                )}
                                                 {repos.map((repo) => (
                                                     <CommandItem
                                                         key={repo.fullName}
                                                         value={repo.fullName}
-                                                        onSelect={(currentValue) => {
-                                                            const selectedRepo = repos.find(r => r.fullName.toLowerCase() === currentValue);
-                                                            if (selectedRepo) {
-                                                                setFormData({
-                                                                    ...formData,
-                                                                    repoOwner: selectedRepo.owner,
-                                                                    repoName: selectedRepo.name,
-                                                                    name: formData.name || selectedRepo.name,
-                                                                });
-                                                            }
+                                                        onSelect={() => {
+                                                            setFormData({
+                                                                ...formData,
+                                                                repoOwner: repo.owner,
+                                                                repoName: repo.name,
+                                                                name: formData.name || repo.name,
+                                                            });
                                                             setRepoComboboxOpen(false);
                                                         }}
                                                     >

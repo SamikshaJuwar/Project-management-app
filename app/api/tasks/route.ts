@@ -22,15 +22,18 @@ export async function GET(req: Request) {
                 },
                 subproject: {
                     select: { name: true, projectId: true }
+                },
+                milestone: {
+                    select: { id: true, title: true }
                 }
             },
             orderBy: { createdAt: "desc" }
         });
 
         return NextResponse.json(serialize(tasks));
-    } catch (error) {
-        console.error("Fetch tasks error:", error);
-        return NextResponse.json({ error: "Failed to fetch tasks" }, { status: 500 });
+    } catch (error: any) {
+        console.error("Fetch milestones error:", error);
+        return NextResponse.json({ error: error.message || "Failed to fetch milestones" }, { status: 500 });
     }
 }
 
@@ -54,6 +57,16 @@ export async function POST(req: Request) {
                 ? labels.split(",").map((l: string) => l.trim()).filter(Boolean)
                 : [];
 
+        // Fetch subproject to get projectId
+        const subproject = await prisma.subproject.findUnique({
+            where: { id: subprojectId },
+            select: { projectId: true }
+        });
+
+        if (!subproject) {
+            return NextResponse.json({ error: "Subproject not found" }, { status: 404 });
+        }
+
         const task = await prisma.task.create({
             data: {
                 title,
@@ -62,12 +75,23 @@ export async function POST(req: Request) {
                 subprojectId,
                 assigneeId: (assigneeId && assigneeId !== "null") ? assigneeId : null,
                 labels: labelsArr,
-                dueDate: dueDate ? new Date(dueDate) : null
+                dueDate: dueDate ? new Date(dueDate) : null,
+                milestone: {
+                    create: {
+                        title,
+                        description: description || "",
+                        state: (status === "Done") ? "closed" : "open",
+                        projectId: subproject.projectId,
+                        subprojectId: subprojectId,
+                        dueDate: dueDate ? new Date(dueDate) : null,
+                    }
+                }
             },
             include: {
                 assignee: {
                     select: { id: true, name: true, avatarUrl: true }
-                }
+                },
+                milestone: true
             }
         });
 

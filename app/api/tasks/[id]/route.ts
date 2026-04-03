@@ -66,9 +66,23 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
             include: {
                 assignee: {
                     select: { id: true, name: true, avatarUrl: true }
-                }
+                },
+                milestone: true
             }
         });
+
+        // Sync with Milestone
+        if (task.milestone) {
+            await prisma.milestone.update({
+                where: { id: task.milestone.id },
+                data: {
+                    title: data.title !== undefined ? data.title : undefined,
+                    description: data.description !== undefined ? data.description : undefined,
+                    dueDate: data.dueDate !== undefined ? (data.dueDate ? new Date(data.dueDate) : null) : undefined,
+                    state: data.status !== undefined ? (data.status === "Done" ? "closed" : "open") : undefined,
+                }
+            });
+        }
 
         return NextResponse.json(serialize(task));
     } catch (error: any) {

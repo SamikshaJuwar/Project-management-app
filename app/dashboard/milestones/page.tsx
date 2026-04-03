@@ -29,6 +29,12 @@ type Project = {
     repoName?: string;
 };
 
+type Subproject = {
+    id: string;
+    name: string;
+    projectId: string;
+};
+
 type Milestone = {
     id: string;
     title: string;
@@ -328,9 +334,11 @@ function KanbanColumn({
 export default function MilestonesPage() {
     const [milestones, setMilestones] = useState<Milestone[]>([]);
     const [projects, setProjects] = useState<Project[]>([]);
+    const [subprojects, setSubprojects] = useState<Subproject[]>([]);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [selectedProjectId, setSelectedProjectId] = useState<string>("all");
+    const [loadingSubprojects, setLoadingSubprojects] = useState(false);
 
     const [openDialog, setOpenDialog] = useState(false);
     const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
@@ -339,6 +347,7 @@ export default function MilestonesPage() {
 
     const [formData, setFormData] = useState({
         projectId: "",
+        subprojectId: "",
         title: "",
         description: "",
         dueDate: "",
@@ -381,6 +390,28 @@ export default function MilestonesPage() {
             toast.error("Failed to load projects");
         }
     }, []);
+
+    const fetchSubprojects = useCallback(async (projectId: string) => {
+        if (!projectId || projectId === "all") {
+            setSubprojects([]);
+            return;
+        }
+        setLoadingSubprojects(true);
+        try {
+            const res = await fetch(`/api/subprojects?projectId=${projectId}`);
+            if (res.ok) setSubprojects(await res.json());
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setLoadingSubprojects(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        if (formData.projectId) {
+            fetchSubprojects(formData.projectId);
+        }
+    }, [formData.projectId, fetchSubprojects]);
 
     const fetchMilestones = useCallback(async () => {
         setLoading(true);
@@ -541,6 +572,7 @@ export default function MilestonesPage() {
     const handleOpenNew = () => {
         setFormData({
             projectId: selectedProjectId !== "all" ? selectedProjectId : "",
+            subprojectId: "",
             title: "",
             description: "",
             dueDate: ""
@@ -552,6 +584,7 @@ export default function MilestonesPage() {
     const handleOpenEdit = (milestone: Milestone) => {
         setFormData({
             projectId: milestone.projectId,
+            subprojectId: (milestone as any).subprojectId || "",
             title: milestone.title,
             description: milestone.description || "",
             dueDate: milestone.dueDate ? new Date(milestone.dueDate).toISOString().split('T')[0] : "",
@@ -743,6 +776,24 @@ export default function MilestonesPage() {
                                 <SelectContent>
                                     {projects.map(p => (
                                         <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">Subproject (Optional - Syncs to Task)</label>
+                            <Select
+                                value={formData.subprojectId}
+                                onValueChange={val => setFormData({ ...formData, subprojectId: val || "" })}
+                                disabled={saving || !formData.projectId || loadingSubprojects}
+                            >
+                                <SelectTrigger className="w-full">
+                                    <SelectValue placeholder={loadingSubprojects ? "Loading..." : "Select subproject"} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="none">No Subproject</SelectItem>
+                                    {subprojects.map(s => (
+                                        <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>

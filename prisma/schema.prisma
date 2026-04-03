@@ -71,6 +71,7 @@ model Project {
   issues              Issue[]
   subprojects         Subproject[]
   subprojectColumns   SubprojectColumn[]
+  meetings            Meeting[]
 }
 
 model SubprojectColumn {
@@ -100,6 +101,7 @@ model Subproject {
   columnId      String?
   column        SubprojectColumn? @relation("ColumnSubprojects", fields: [columnId], references: [id])
   tasks         Task[]
+  milestones    Milestone[]
   assignedUsers User[]    @relation("SubprojectUsers")
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -121,6 +123,8 @@ model Task {
   repostsCount  Int         @default(0)
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
+
+  milestone     Milestone?
 }
 
 model Milestone {
@@ -133,6 +137,13 @@ model Milestone {
   state                 String    @default("open")
   projectId             String
   project               Project   @relation(fields: [projectId], references: [id])
+  
+  subprojectId          String?
+  subproject            Subproject? @relation(fields: [subprojectId], references: [id])
+  
+  taskId                String?   @unique
+  task                  Task?     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
   issues                Issue[]
@@ -195,4 +206,43 @@ model Timesheet {
 
   @@unique([userId, weekStart])
   @@index([userId])
+}
+
+enum MeetingStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+}
+
+model Meeting {
+  id                 String        @id @default(cuid())
+  agenda             String
+  meetingType        String        // "project" | "other"
+  projectId          String?
+  project            Project?      @relation(fields: [projectId], references: [id])
+  points             String?       // Discussion points
+  attendeeIds        String[]      // Internal: User IDs
+  externalAttendees  String[]      // External: email addresses
+  meetingLink        String?       // Manual link (Google Meet, Zoom, etc.)
+  dateTime           DateTime
+  sendEmail          Boolean       @default(false)
+  calendarSync       Boolean       @default(false)
+  status             MeetingStatus @default(SCHEDULED)
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+
+  mom                MOM?
+}
+
+model MOM {
+  id              String   @id @default(cuid())
+  meetingId       String   @unique
+  meeting         Meeting  @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  attendeesNames  String   // Free-text list of names who attended
+  pointsDiscussed String
+  description     String?
+  conclusion      String
+  goalsSet        String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }

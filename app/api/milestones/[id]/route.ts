@@ -41,9 +41,23 @@ export async function PATCH(
             include: {
                 project: {
                     select: { name: true, repoOwner: true, repoName: true }
-                }
+                },
+                task: true
             }
         });
+
+        // Sync with Task
+        if (milestone.taskId) {
+            await prisma.task.update({
+                where: { id: milestone.taskId },
+                data: {
+                    title: title !== undefined ? title : undefined,
+                    description: description !== undefined ? description : undefined,
+                    dueDate: dueDate !== undefined ? (dueDate ? new Date(dueDate) : null) : undefined,
+                    status: state !== undefined ? (state === "closed" ? "Done" : "To Do") : undefined,
+                }
+            });
+        }
 
         // Sync with GitHub if applicable
         if (milestone.githubMilestoneNumber && milestone.project.repoOwner && milestone.project.repoName) {
@@ -96,15 +110,29 @@ export async function DELETE(
         const resolvedParams = await params;
         const id = resolvedParams.id;
 
+        // Fetch milestone to check for linked task
+        const existing = await prisma.milestone.findUnique({
+            where: { id },
+            select: { taskId: true }
+        });
+
         // Optionally handle issues linked to this milestone
         await prisma.issue.updateMany({
             where: { milestoneId: id },
             data: { milestoneId: null }
         });
 
-        await prisma.milestone.delete({
-            where: { id }
-        });
+        if (existing?.taskId) {
+            // Deleting the task will cascade delete the milestone
+            await prisma.task.delete({
+                where: { id: existing.taskId }
+            });
+        } else {
+            // Delete milestone directly if no task linked
+            await prisma.milestone.delete({
+                where: { id }
+            });
+        }
 
         return NextResponse.json({ success: true });
     } catch (error: any) {

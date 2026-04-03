@@ -13,7 +13,8 @@ import {
     LogOut,
     Menu,
     X,
-    AlertCircle
+    AlertCircle,
+    CalendarDays
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -41,6 +42,7 @@ export function DashboardSidebar({ user, isSuperadmin, githubConnected }: Sideba
         { name: "Projects", href: "/dashboard/projects", icon: FolderKanban },
         { name: "Milestones", href: "/dashboard/milestones", icon: Flag },
         { name: "Issues", href: "/dashboard/issues", icon: CircleDot },
+        ...(isSuperadmin ? [{ name: "Meetings", href: "/dashboard/meetings", icon: CalendarDays }] : []),
         ...(isSuperadmin ? [{ name: "Team", href: "/dashboard/team", icon: Users }] : []),
         { name: "Repositories", href: "/dashboard/repos", icon: Github },
         {
