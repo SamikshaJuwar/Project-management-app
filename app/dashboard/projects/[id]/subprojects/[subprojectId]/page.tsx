@@ -584,8 +584,8 @@ export default function SubprojectTaskBoard() {
                             <div className="space-y-3">
                                 <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest pl-2">Assignee</label>
                                 <Select
-                                    value={formData.assigneeId}
-                                    onValueChange={val => setFormData({ ...formData, assigneeId: val })}
+                                    value={formData.assigneeId ?? ""}
+                                    onValueChange={val => setFormData({ ...formData, assigneeId: val ?? "" })}
                                 >
                                     <SelectTrigger className="h-14 rounded-3xl border-2 border-slate-100 bg-white font-bold px-6">
                                         <SelectValue placeholder="Resource" />

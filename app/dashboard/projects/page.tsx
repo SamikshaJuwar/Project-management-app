@@ -872,10 +872,8 @@ export default function ProjectsPage() {
                 <div className="flex flex-wrap items-center gap-2">
                     {hiddenColumns.length > 0 && (
                         <Popover>
-                            <PopoverTrigger asChild>
-                                <Button variant="outline" className="border-indigo-200 text-indigo-700 bg-indigo-50/50 hover:bg-indigo-100/50">
-                                    <EyeOff className="mr-2 h-4 w-4" /> Hidden ({hiddenColumns.length})
-                                </Button>
+                            <PopoverTrigger render={<Button variant="outline" className="border-indigo-200 text-indigo-700 bg-indigo-50/50 hover:bg-indigo-100/50" />}>
+                                <EyeOff className="mr-2 h-4 w-4" /> Hidden ({hiddenColumns.length})
                             </PopoverTrigger>
                             <PopoverContent className="w-56 p-2" align="end">
                                 <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 px-1">Hidden Columns</p>
@@ -912,18 +910,16 @@ export default function ProjectsPage() {
                 <div className="flex flex-col gap-1.5 z-10">
                     <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider ml-0.5 block">Date Filter</label>
                     <Popover>
-                        <PopoverTrigger asChild>
-                            <Button variant="outline" className={cn("bg-white border-slate-200 h-9 w-[240px] justify-between", (filterStart || filterEnd) && "border-indigo-300 bg-indigo-50/30 text-indigo-700 font-medium")}>
-                                <div className="flex items-center gap-2 truncate">
-                                    <Filter className="h-4 w-4 shrink-0" />
-                                    <span className="truncate text-xs">
-                                        {filterStart && filterEnd ? `${new Date(filterStart).toLocaleDateString("en-US", { month: "short", day: "numeric" })} - ${new Date(filterEnd).toLocaleDateString("en-US", { month: "short", day: "numeric" })}` : filterStart ? `From ${new Date(filterStart).toLocaleDateString("en-US", { month: "short", day: "numeric" })}` : filterEnd ? `Until ${new Date(filterEnd).toLocaleDateString("en-US", { month: "short", day: "numeric" })}` : "Filter by date"}
-                                    </span>
-                                </div>
-                                {(filterStart || filterEnd) && (
-                                    <Badge variant="secondary" className="px-1 h-5 rounded-sm bg-indigo-100/50 hover:bg-indigo-100/80 text-indigo-600 shrink-0 ml-2">Active</Badge>
-                                )}
-                            </Button>
+                        <PopoverTrigger render={<Button variant="outline" className={cn("bg-white border-slate-200 h-9 w-[240px] justify-between", (filterStart || filterEnd) && "border-indigo-300 bg-indigo-50/30 text-indigo-700 font-medium")} />}>
+                            <div className="flex items-center gap-2 truncate">
+                                <Filter className="h-4 w-4 shrink-0" />
+                                <span className="truncate text-xs">
+                                    {filterStart && filterEnd ? `${new Date(filterStart).toLocaleDateString("en-US", { month: "short", day: "numeric" })} - ${new Date(filterEnd).toLocaleDateString("en-US", { month: "short", day: "numeric" })}` : filterStart ? `From ${new Date(filterStart).toLocaleDateString("en-US", { month: "short", day: "numeric" })}` : filterEnd ? `Until ${new Date(filterEnd).toLocaleDateString("en-US", { month: "short", day: "numeric" })}` : "Filter by date"}
+                                </span>
+                            </div>
+                            {(filterStart || filterEnd) && (
+                                <Badge variant="secondary" className="px-1 h-5 rounded-sm bg-indigo-100/50 hover:bg-indigo-100/80 text-indigo-600 shrink-0 ml-2">Active</Badge>
+                            )}
                         </PopoverTrigger>
                         <PopoverContent className="w-72 p-4" align="start">
                             <div className="space-y-4">
@@ -1029,20 +1025,18 @@ export default function ProjectsPage() {
                         <div className="space-y-2">
                             <label className="text-sm font-medium text-gray-700 dark:text-gray-300">GitHub Repository (Optional)</label>
                             <Popover open={repoComboboxOpen} onOpenChange={setRepoComboboxOpen}>
-                                <PopoverTrigger asChild>
-                                    <Button
+                                <PopoverTrigger render={<Button
                                         variant="outline"
                                         role="combobox"
                                         aria-expanded={repoComboboxOpen}
                                         className="w-full justify-between font-normal"
                                         disabled={saving}
                                         type="button"
-                                    >
-                                        {formData.repoName
-                                            ? `${formData.repoOwner}/${formData.repoName}`
-                                            : "Link to GitHub repository..."}
-                                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                    </Button>
+                                    />}>
+                                    {formData.repoName
+                                        ? `${formData.repoOwner}/${formData.repoName}`
+                                        : "Link to GitHub repository..."}
+                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                 </PopoverTrigger>
                                 <PopoverContent className="w-[400px] p-0" align="start">
                                     <Command>
